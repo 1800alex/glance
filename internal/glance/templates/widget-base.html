@@ -25,7 +25,7 @@
         {{- end }}
     </div>
     {{- end }}
-    <div style="display: none;" id="widget-metadata-{{ .ID }}">{ "ID": {{ .ID }}, "Type": "{{ .GetType }}" }</div>
+    <div style="display: none;" id="widget-metadata-{{ .ID }}">{ "ID": {{ .ID }}, "Type": "{{ .GetType }}", "Refresh": {{ .GetRefresh }} }</div>
     <div class="widget-content{{ if .ContentAvailable }} {{ block "widget-content-classes" . }}{{ end }}{{ end }}" id="widget-content-{{ .ID }}">
         {{- if .ContentAvailable }}
         {{ block "widget-content" . }}{{ end }}

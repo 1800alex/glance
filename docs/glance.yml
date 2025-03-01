@@ -66,6 +66,7 @@ pages:
             # hide-location: true
 
           - type: markets
+            refresh: 1m
             # The link to go to when clicking on the symbol in the UI,
             # {SYMBOL} will be substituded with the symbol for each market
             symbol-link-template: https://www.tradingview.com/symbols/{SYMBOL}/news
