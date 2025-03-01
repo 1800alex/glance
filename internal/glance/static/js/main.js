@@ -687,6 +687,18 @@ function loadWidgetMetadata() {
     }
 }
 
+async function fetchWidgetContent(pageData, id) {
+    // TODO: handle non 200 status codes/time outs
+    // TODO: add retries
+
+    const url = `${pageData.baseURL}/api/pages/${pageData.slug}/widget/${id}/content/`;
+    // const url = `${pageData.baseURL}/api/widgets/${id}/`;
+    const response = await fetch(url);
+    const content = await response.text();
+
+    return content;
+}
+
 async function refreshWidget(id, now = false) {
     try {
         const widget = widgets[id];
@@ -697,7 +709,29 @@ async function refreshWidget(id, now = false) {
         if (!refreshInterval || refreshInterval <= 0) {
             return;
         }
-        console.log(`Setting up refresh for widget ${id} every ${refreshInterval}ms`);
+
+        if (now) {
+            console.log(`Refreshing widget ${id}...`);
+            
+            try {
+                const content = await fetchWidgetContent(pageData, id);
+
+                const widgetElement = document.getElementById(`widget-${id}`);
+                if (widgetElement) {
+                    widgetElement.innerHTML = content;
+                    widgetElement.classList.add("widget-content-loaded");
+                    console.log(`Fetched widget content for ${id}`);
+                } else {
+                    console.error(`Widget element not found for ${id}`);
+                }
+
+            } catch (error) {
+                console.error(`Error fetching widget content for ${id}:`, error);
+            }
+        } else {
+            console.log(`Refreshing widget ${id} in ${refreshInterval}ms...`);
+        }
+
         if (widget.refreshTimeout) {
             clearTimeout(widget.refreshTimeout);
         }

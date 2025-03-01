@@ -185,6 +185,53 @@ func (a *application) handlePageContentRequest(w http.ResponseWriter, r *http.Re
 	w.Write(responseBytes.Bytes())
 }
 
+func (a *application) handlePageWidgetContentRequest(w http.ResponseWriter, r *http.Request) {
+	page, exists := a.slugToPage[r.PathValue("page")]
+
+	if !exists {
+		a.handleNotFound(w, r)
+		return
+	}
+
+	widgetValue := r.PathValue("widget")
+
+	widgetID, err := strconv.ParseUint(widgetValue, 10, 64)
+	if err != nil {
+		a.handleNotFound(w, r)
+		return
+	}
+
+	widget, exists := a.widgetByID[widgetID]
+
+	if !exists {
+		a.handleNotFound(w, r)
+		return
+	}
+
+	var responseBytes bytes.Buffer
+
+	func() {
+		page.mu.Lock()
+		defer page.mu.Unlock()
+
+		now := time.Now()
+
+		if widget.requiresUpdate(&now) {
+			widget.update(context.Background())
+		}
+
+		responseBytes.WriteString(string(widget.Render()))
+	}()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Write(responseBytes.Bytes())
+}
+
 func (a *application) handleNotFound(w http.ResponseWriter, _ *http.Request) {
 	// TODO: add proper not found page
 	w.WriteHeader(http.StatusNotFound)
@@ -223,6 +270,7 @@ func (a *application) server() (func() error, func() error) {
 	mux.HandleFunc("GET /{page}", a.handlePageRequest)
 
 	mux.HandleFunc("GET /api/pages/{page}/content/{$}", a.handlePageContentRequest)
+	mux.HandleFunc("GET /api/pages/{page}/widget/{widget}/content/{$}", a.handlePageWidgetContentRequest)
 	mux.HandleFunc("/api/widgets/{widget}/{path...}", a.handleWidgetRequest)
 	mux.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
