@@ -702,8 +702,6 @@ async function setupPage() {
 
         setTimeout(() => {
             widgets = widgetRefresh(pageData, async (id, element) => {
-                console.log(`Widget ${id} changed`, element);
-
                 await setupItems(pageElement, element);
             });
             widgets.init();
