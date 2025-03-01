@@ -121,6 +121,7 @@ type widget interface {
 	// These need to be exported because they get called in templates
 	Render() template.HTML
 	GetType() string
+	GetRefresh() uint64 // returns the refresh rate in milliseconds
 
 	initialize() error
 	requiresUpdate(*time.Time) bool
@@ -148,6 +149,7 @@ type widgetBase struct {
 	TitleURL            string           `yaml:"title-url"`
 	CSSClass            string           `yaml:"css-class"`
 	CustomCacheDuration durationField    `yaml:"cache"`
+	Refresh             durationField    `yaml:"refresh"`
 	ContentAvailable    bool             `yaml:"-"`
 	WIP                 bool             `yaml:"-"`
 	Error               error            `yaml:"-"`
@@ -202,6 +204,11 @@ func (widget *widgetBase) handleRequest(w http.ResponseWriter, r *http.Request) 
 
 func (w *widgetBase) GetType() string {
 	return w.Type
+}
+
+func (w *widgetBase) GetRefresh() uint64 {
+	duration := time.Duration(w.Refresh)
+	return uint64(duration.Milliseconds())
 }
 
 func (w *widgetBase) setProviders(providers *widgetProviders) {
