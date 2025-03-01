@@ -23,14 +23,8 @@ pages:
               - url: https://ishadeed.com/feed.xml
                 title: Ahmad Shadeed
 
-          - type: twitch-channels
-            channels:
-              - theprimeagen
-              - j_blow
-              - piratesoftware
-              - cohhcarnage
-              - christitustech
-              - EJ_SA
+          - type: server-stats
+            refresh: 5s
 
       - size: full
         widgets:
@@ -59,6 +53,7 @@ pages:
       - size: small
         widgets:
           - type: weather
+            refresh: 1h
             location: London, United Kingdom
             units: metric # alternatively "imperial"
             hour-format: 12h # alternatively "24h"
@@ -66,7 +61,7 @@ pages:
             # hide-location: true
 
           - type: markets
-            refresh: 1m
+            refresh: 5m
             # The link to go to when clicking on the symbol in the UI,
             # {SYMBOL} will be substituded with the symbol for each market
             symbol-link-template: https://www.tradingview.com/symbols/{SYMBOL}/news
