@@ -10,7 +10,7 @@ if (debug) {
 	debugLog = function(...args) {}
 }
 
-export function widgetRefresh(pageData) {
+export function widgetRefresh(pageData, onChange) {
     return {
 		widgets: {},
 		init: function() {
@@ -87,6 +87,10 @@ export function widgetRefresh(pageData) {
 							// widgetElement.innerHTML = content;
 							// widgetElement.classList.add("widget-content-loaded");
 							debugLog(`Fetched widget content for ${id}`);
+
+							if(onChange) {
+								onChange(id, widgetElement);
+							}
 						} else {
 							console.error(`Widget element not found for ${id}`);
 						}

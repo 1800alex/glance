@@ -1,4 +1,70 @@
+theme:
+  background-color: 50 1 6
+  primary-color: 24 97 58
+  negative-color: 209 88 54
+
 pages:
+  - name: Startpage
+    width: slim
+    hide-desktop-navigation: false
+    center-vertically: true
+    columns:
+      - size: full
+        widgets:
+          - type: search
+            autofocus: true
+
+          - type: monitor
+            cache: 1m
+            refresh: 30s
+            title: Services
+            sites:
+              - title: Jellyfin
+                url: https://yourdomain.com/
+                icon: si:jellyfin
+              - title: Gitea
+                url: https://yourdomain.com/
+                icon: si:gitea
+              - title: qBittorrent # only for Linux ISOs, of course
+                url: https://yourdomain.com/
+                icon: si:qbittorrent
+              - title: Immich
+                url: https://yourdomain.com/
+                icon: si:immich
+              - title: AdGuard Home
+                url: https://yourdomain.com/
+                icon: si:adguard
+              - title: Vaultwarden
+                url: https://yourdomain.com/
+                icon: si:vaultwarden
+
+          - type: bookmarks
+            groups:
+              - title: General
+                links:
+                  - title: Gmail
+                    url: https://mail.google.com/mail/u/0/
+                  - title: Amazon
+                    url: https://www.amazon.com/
+                  - title: Github
+                    url: https://github.com/
+              - title: Entertainment
+                links:
+                  - title: YouTube
+                    url: https://www.youtube.com/
+                  - title: Prime Video
+                    url: https://www.primevideo.com/
+                  - title: Disney+
+                    url: https://www.disneyplus.com/
+              - title: Social
+                links:
+                  - title: Reddit
+                    url: https://www.reddit.com/
+                  - title: Twitter
+                    url: https://twitter.com/
+                  - title: Instagram
+                    url: https://www.instagram.com/
+
   - name: Home
     # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
     # hide-desktop-navigation: true
@@ -11,7 +77,8 @@ pages:
           - type: rss
             limit: 10
             collapse-after: 3
-            cache: 12h
+            cache: 30m
+            refresh: 15m
             feeds:
               - url: https://selfh.st/rss/
                 title: selfh.st
@@ -31,9 +98,15 @@ pages:
           - type: group
             widgets:
               - type: hacker-news
+                cache: 30m
+                refresh: 15m
               - type: lobsters
+                cache: 30m
+                refresh: 15m
 
           - type: videos
+            cache: 30m
+            refresh: 15m
             channels:
               - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
               - UCR-DXc1voovS8nhAvccRZhg # Jeff Geerling
@@ -54,13 +127,14 @@ pages:
         widgets:
           - type: weather
             refresh: 1h
-            location: London, United Kingdom
-            units: metric # alternatively "imperial"
+            location: Indianapolis, Indiana, United States
+            units: imperial # alternatively "imperial"
             hour-format: 12h # alternatively "24h"
             # Optionally hide the location from being displayed in the widget
             # hide-location: true
 
           - type: markets
+            cache: 2m
             refresh: 5m
             # The link to go to when clicking on the symbol in the UI,
             # {SYMBOL} will be substituded with the symbol for each market
@@ -88,17 +162,105 @@ pages:
               - immich-app/immich
               - syncthing/syncthing
 
-  # Add more pages here:
-  # - name: Your page name
-  #   columns:
-  #     - size: small
-  #       widgets:
-  #         # Add widgets here
+  - name: Markets
+    columns:
+      - size: small
+        widgets:
+          - type: markets
+            title: Indices
+            cache: 2m
+            refresh: 5m
+            markets:
+              - symbol: SPY
+                name: S&P 500
+              - symbol: DX-Y.NYB
+                name: Dollar Index
 
-  #     - size: full
-  #       widgets:
-  #         # Add widgets here
+          - type: markets
+            title: Crypto
+            cache: 2m
+            refresh: 6h
+            markets:
+              - symbol: BTC-USD
+                name: Bitcoin
+              - symbol: ETH-USD
+                name: Ethereum
 
-  #     - size: small
-  #       widgets:
-  #         # Add widgets here
+          - type: markets
+            title: Stocks
+            cache: 2m
+            refresh: 5m
+            sort-by: absolute-change
+            markets:
+              - symbol: NVDA
+                name: NVIDIA
+              - symbol: AAPL
+                name: Apple
+              - symbol: MSFT
+                name: Microsoft
+              - symbol: GOOGL
+                name: Google
+              - symbol: AMD
+                name: AMD
+              - symbol: RDDT
+                name: Reddit
+              - symbol: AMZN
+                name: Amazon
+              - symbol: TSLA
+                name: Tesla
+              - symbol: INTC
+                name: Intel
+              - symbol: META
+                name: Meta
+
+      - size: full
+        widgets:
+          - type: rss
+            title: News
+            cache: 30m
+            refresh: 15m
+            style: horizontal-cards
+            feeds:
+              - url: https://feeds.bloomberg.com/markets/news.rss
+                title: Bloomberg
+              - url: https://moxie.foxbusiness.com/google-publisher/markets.xml
+                title: Fox Business
+              - url: https://moxie.foxbusiness.com/google-publisher/technology.xml
+                title: Fox Business
+
+          - type: group
+            widgets:
+              - type: reddit
+                cache: 30m
+                refresh: 15m
+                show-thumbnails: true
+                subreddit: technology
+              - type: reddit
+                cache: 30m
+                refresh: 15m
+                show-thumbnails: true
+                subreddit: wallstreetbets
+
+          - type: videos
+            style: grid-cards
+            cache: 1h
+            refresh: 30m
+            collapse-after-rows: 3
+            channels:
+              - UCvSXMi2LebwJEM1s4bz5IBA # New Money
+              - UCV6KDgJskWaEckne5aPA0aQ # Graham Stephan
+              - UCAzhpt9DmG6PnHXjmJTvRGQ # Federal Reserve
+
+      - size: small
+        widgets:
+          - type: rss
+            cache: 30m
+            refresh: 15m
+            title: News
+            limit: 30
+            collapse-after: 13
+            feeds:
+              - url: https://www.ft.com/technology?format=rss
+                title: Financial Times
+              - url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+                title: Wall Street Journal

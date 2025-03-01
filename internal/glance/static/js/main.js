@@ -12,8 +12,8 @@ async function fetchPageContent(pageData) {
     return content;
 }
 
-function setupCarousels() {
-    const carouselElements = document.getElementsByClassName("carousel-container");
+function setupCarousels(element = document) {
+    const carouselElements = element.getElementsByClassName("carousel-container");
 
     if (carouselElements.length == 0) {
         return;
@@ -95,8 +95,8 @@ function updateRelativeTimeForElements(elements)
     }
 }
 
-function setupSearchBoxes() {
-    const searchWidgets = document.getElementsByClassName("search");
+function setupSearchBoxes(element = document) {
+    const searchWidgets = element.getElementsByClassName("search");
 
     if (searchWidgets.length == 0) {
         return;
@@ -183,16 +183,16 @@ function setupSearchBoxes() {
         };
 
         inputElement.addEventListener("focus", () => {
-            document.addEventListener("keydown", handleKeyDown);
-            document.addEventListener("input", handleInput);
+            element.addEventListener("keydown", handleKeyDown);
+            element.addEventListener("input", handleInput);
         });
         inputElement.addEventListener("blur", () => {
-            document.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("input", handleInput);
+            element.removeEventListener("keydown", handleKeyDown);
+            element.removeEventListener("input", handleInput);
         });
 
-        document.addEventListener("keydown", (event) => {
-            if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        element.addEventListener("keydown", (event) => {
+            if (['INPUT', 'TEXTAREA'].includes(element.activeElement.tagName)) return;
             if (event.key != "s") return;
 
             inputElement.focus();
@@ -205,8 +205,8 @@ function setupSearchBoxes() {
     }
 }
 
-function setupDynamicRelativeTime() {
-    const elements = document.querySelectorAll("[data-dynamic-relative-time]");
+function setupDynamicRelativeTime(element = document) {
+    const elements = element.querySelectorAll("[data-dynamic-relative-time]");
     const updateInterval = 60 * 1000;
     let lastUpdateTime = Date.now();
 
@@ -219,15 +219,15 @@ function setupDynamicRelativeTime() {
 
     const scheduleRepeatingUpdate = () => setInterval(updateElementsAndTimestamp, updateInterval);
 
-    if (document.hidden === undefined) {
+    if (element.hidden === undefined) {
         scheduleRepeatingUpdate();
         return;
     }
 
     let timeout = scheduleRepeatingUpdate();
 
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
+    element.addEventListener("visibilitychange", () => {
+        if (element.hidden) {
             clearTimeout(timeout);
             return;
         }
@@ -247,8 +247,8 @@ function setupDynamicRelativeTime() {
     });
 }
 
-function setupGroups() {
-    const groups = document.getElementsByClassName("widget-type-group");
+function setupGroups(element = document) {
+    const groups = element.getElementsByClassName("widget-type-group");
 
     if (groups.length == 0) {
         return;
@@ -303,8 +303,8 @@ function setupGroups() {
     }
 }
 
-function setupLazyImages() {
-    const images = document.querySelectorAll("img[loading=lazy]");
+function setupLazyImages(element = document) {
+    const images = element.querySelectorAll("img[loading=lazy]");
 
     if (images.length == 0) {
         return;
@@ -378,8 +378,8 @@ function attachExpandToggleButton(collapsibleContainer) {
 };
 
 
-function setupCollapsibleLists() {
-    const collapsibleLists = document.querySelectorAll(".list.collapsible-container");
+function setupCollapsibleLists(element = document) {
+    const collapsibleLists = element.querySelectorAll(".list.collapsible-container");
 
     if (collapsibleLists.length == 0) {
         return;
@@ -412,8 +412,8 @@ function setupCollapsibleLists() {
     }
 }
 
-function setupCollapsibleGrids() {
-    const collapsibleGridElements = document.querySelectorAll(".cards-grid.collapsible-container");
+function setupCollapsibleGrids(element = document) {
+    const collapsibleGridElements = element.querySelectorAll(".cards-grid.collapsible-container");
 
     if (collapsibleGridElements.length == 0) {
         return;
@@ -565,8 +565,8 @@ function zoneDiffText(diffInMinutes) {
     return { text: `${sign}${hours}h~`, title: `${hours} hour${hourSuffix} and ${minutes} minutes ${signText}` };
 }
 
-function setupClocks() {
-    const clocks = document.getElementsByClassName('clock');
+function setupClocks(element = document) {
+    const clocks = element.getElementsByClassName('clock');
 
     if (clocks.length == 0) {
         return;
@@ -626,8 +626,8 @@ function setupClocks() {
     updateClocks();
 }
 
-async function setupCalendars() {
-    const elems = document.getElementsByClassName("calendar");
+async function setupCalendars(element = document) {
+    const elems = element.getElementsByClassName("calendar");
     if (elems.length == 0) return;
 
     // TODO: implement prefetching, currently loads as a nasty waterfall of requests
@@ -637,8 +637,8 @@ async function setupCalendars() {
         calendar.default(elems[i]);
 }
 
-function setupTruncatedElementTitles() {
-    const elements = document.querySelectorAll(".text-truncate, .single-line-titles .title, .text-truncate-2-lines, .text-truncate-3-lines");
+function setupTruncatedElementTitles(element = document) {
+    const elements = element.querySelectorAll(".text-truncate, .single-line-titles .title, .text-truncate-2-lines, .text-truncate-3-lines");
 
     if (elements.length == 0) {
         return;
@@ -652,6 +652,30 @@ function setupTruncatedElementTitles() {
 
 let widgets;
 
+async function setupItems(pageElement, element = document) {
+    try {
+        setupPopovers(element);
+        setupClocks(element)
+        await setupCalendars(element);
+        setupCarousels(element);
+        setupSearchBoxes(element);
+        setupCollapsibleLists(element);
+        setupCollapsibleGrids(element);
+        setupGroups(element);
+        setupMasonries(element);
+        setupDynamicRelativeTime(element);
+        setupLazyImages(element);
+    } finally {
+        // TODO need to investigate if this is needed, or I have created memory leaks
+
+        // pageElement.classList.add("content-ready");
+
+        // for (let i = 0; i < contentReadyCallbacks.length; i++) {
+        //     contentReadyCallbacks[i]();
+        // }
+    }
+}
+
 async function setupPage() {
     const pageElement = document.getElementById("page");
     const pageContentElement = document.getElementById("page-content");
@@ -660,17 +684,7 @@ async function setupPage() {
     pageContentElement.innerHTML = pageContent;
 
     try {
-        setupPopovers();
-        setupClocks()
-        await setupCalendars();
-        setupCarousels();
-        setupSearchBoxes();
-        setupCollapsibleLists();
-        setupCollapsibleGrids();
-        setupGroups();
-        setupMasonries();
-        setupDynamicRelativeTime();
-        setupLazyImages();
+        await setupItems(pageElement);
     } finally {
         pageElement.classList.add("content-ready");
 
@@ -687,7 +701,11 @@ async function setupPage() {
         }, 300);
 
         setTimeout(() => {
-            widgets = widgetRefresh(pageData);
+            widgets = widgetRefresh(pageData, async (id, element) => {
+                console.log(`Widget ${id} changed`, element);
+
+                await setupItems(pageElement, element);
+            });
             widgets.init();
         }, 500);
     }
