@@ -1,3 +1,4 @@
+import morphdom from './morphdom-esm.js';
 import { setupPopovers } from './popover.js';
 import { setupMasonries } from './masonry.js';
 import { throttledDebounce, isElementVisible, openURLInNewTab } from './utils.js';
@@ -716,10 +717,13 @@ async function refreshWidget(id, now = false) {
             try {
                 const content = await fetchWidgetContent(pageData, id);
 
+                // Use morphdom to update the widget content
+
                 const widgetElement = document.getElementById(`widget-${id}`);
                 if (widgetElement) {
-                    widgetElement.innerHTML = content;
-                    widgetElement.classList.add("widget-content-loaded");
+                    morphdom(widgetElement, content);
+                    // widgetElement.innerHTML = content;
+                    // widgetElement.classList.add("widget-content-loaded");
                     console.log(`Fetched widget content for ${id}`);
                 } else {
                     console.error(`Widget element not found for ${id}`);
