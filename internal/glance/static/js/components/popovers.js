@@ -101,6 +101,8 @@ export function componentPopovers(element) {
 			};
 
 			const repositionContainer = () => {
+				if (activeTarget === null) return;
+				
 				containerElement.style.display = "block";
 
 				const targetBounds = activeTarget.dataset.popoverAnchor !== undefined
@@ -188,6 +190,16 @@ export function componentPopovers(element) {
 					target.removeEventListener("mouseleave", handleMouseLeave);
 				}
 				hidePopover();
+				document.body.removeChild(containerElement);
+				observer.disconnect();
+				containerElement.removeEventListener("mouseenter", clearTogglePopoverTimeout);
+				containerElement.removeEventListener("mouseleave", handleMouseLeave);
+				containerElement.classList.remove("popover-container");
+				frameElement.classList.remove("popover-frame");
+				contentElement.classList.remove("popover-content");
+				frameElement.remove();
+				contentElement.remove();
+				containerElement.remove();
 			}
 
 			containerElement.addEventListener("mouseenter", clearTogglePopoverTimeout);
