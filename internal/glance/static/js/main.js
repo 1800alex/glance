@@ -47,54 +47,6 @@ function setupCarousels(element = document) {
     }
 }
 
-const minuteInSeconds = 60;
-const hourInSeconds = minuteInSeconds * 60;
-const dayInSeconds = hourInSeconds * 24;
-const monthInSeconds = dayInSeconds * 30.4;
-const yearInSeconds = dayInSeconds * 365;
-
-function timestampToRelativeTime(timestamp) {
-    let delta = Math.round((Date.now() / 1000) - timestamp);
-    let prefix = "";
-
-    if (delta < 0) {
-        delta = -delta;
-        prefix = "in ";
-    }
-
-    if (delta < minuteInSeconds) {
-        return prefix + "1m";
-    }
-    if (delta < hourInSeconds) {
-        return prefix + Math.floor(delta / minuteInSeconds) + "m";
-    }
-    if (delta < dayInSeconds) {
-        return prefix + Math.floor(delta / hourInSeconds) + "h";
-    }
-    if (delta < monthInSeconds) {
-        return prefix + Math.floor(delta / dayInSeconds) + "d";
-    }
-    if (delta < yearInSeconds) {
-        return prefix + Math.floor(delta / monthInSeconds) + "mo";
-    }
-
-    return prefix + Math.floor(delta / yearInSeconds) + "y";
-}
-
-function updateRelativeTimeForElements(elements)
-{
-    for (let i = 0; i < elements.length; i++)
-    {
-        const element = elements[i];
-        const timestamp = element.dataset.dynamicRelativeTime;
-
-        if (timestamp === undefined)
-            continue
-
-        element.textContent = timestampToRelativeTime(timestamp);
-    }
-}
-
 function setupSearchBoxes(element = document) {
     const searchWidgets = element.getElementsByClassName("search");
 
@@ -203,48 +155,6 @@ function setupSearchBoxes(element = document) {
             requestAnimationFrame(() => inputElement.focus());
         });
     }
-}
-
-function setupDynamicRelativeTime(element = document) {
-    const elements = element.querySelectorAll("[data-dynamic-relative-time]");
-    const updateInterval = 60 * 1000;
-    let lastUpdateTime = Date.now();
-
-    updateRelativeTimeForElements(elements);
-
-    const updateElementsAndTimestamp = () => {
-        updateRelativeTimeForElements(elements);
-        lastUpdateTime = Date.now();
-    };
-
-    const scheduleRepeatingUpdate = () => setInterval(updateElementsAndTimestamp, updateInterval);
-
-    if (element.hidden === undefined) {
-        scheduleRepeatingUpdate();
-        return;
-    }
-
-    let timeout = scheduleRepeatingUpdate();
-
-    element.addEventListener("visibilitychange", () => {
-        if (element.hidden) {
-            clearTimeout(timeout);
-            return;
-        }
-
-        const delta = Date.now() - lastUpdateTime;
-
-        if (delta >= updateInterval) {
-            updateElementsAndTimestamp();
-            timeout = scheduleRepeatingUpdate();
-            return;
-        }
-
-        timeout = setTimeout(() => {
-            updateElementsAndTimestamp();
-            timeout = scheduleRepeatingUpdate();
-        }, updateInterval - delta);
-    });
 }
 
 function setupGroups(element = document) {
@@ -663,10 +573,10 @@ async function setupItems(pageElement, element = document) {
         setupCollapsibleGrids(element);
         setupGroups(element);
         setupMasonries(element);
-        setupDynamicRelativeTime(element);
         setupLazyImages(element);
     } finally {
         // TODO need to investigate if this is needed, or I have created memory leaks
+        // TODO - re-running this definitely creates memory leaks
 
         // pageElement.classList.add("content-ready");
 
@@ -685,6 +595,12 @@ async function setupPage() {
 
     try {
         await setupItems(pageElement);
+
+        // TODO - I think we will need a unload() -> load() change event that triggers an actual cleanup of the widgets
+        widgets = widgetRefresh(pageData, async (id, element) => {
+            // await setupItems(pageElement, element);
+        });
+        widgets.init();
     } finally {
         pageElement.classList.add("content-ready");
 
@@ -699,13 +615,6 @@ async function setupPage() {
         setTimeout(() => {
             document.body.classList.add("page-columns-transitioned");
         }, 300);
-
-        setTimeout(() => {
-            widgets = widgetRefresh(pageData, async (id, element) => {
-                await setupItems(pageElement, element);
-            });
-            widgets.init();
-        }, 500);
     }
 }
 

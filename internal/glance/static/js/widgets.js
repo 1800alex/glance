@@ -1,4 +1,5 @@
 import morphdom from './morphdom-esm.js';
+import { componentDynamicRelativeTime } from './components/dynamic-relative-time.js';
 
 const debug = false;
 let debugLog;
@@ -32,11 +33,18 @@ export function widgetRefresh(pageData, onChange) {
 					try {
 						const metadata = JSON.parse(data);
 						debugLog(`Loaded widget metadata for ${id}`, metadata);
-		
+
 						if (this.widgets[id] === undefined) {
 							this.widgets[id] = {};
+							this.widgets[id].components = [];
 						}
 						this.widgets[id].metadata = metadata;
+						this.widgets[id].element = document.getElementById(`widget-${id}`);;
+
+						const c = componentDynamicRelativeTime(this.widgets[id].element);
+						c.load();
+						this.widgets[id].components.push(c);
+
 					} catch (e) {
 						console.error(`Failed to parse widget metadata for ${id}`, e);
 					}
@@ -81,15 +89,18 @@ export function widgetRefresh(pageData, onChange) {
 					try {
 						const content = await this.fetchWidgetContent(pageData, id);
 		
-						const widgetElement = document.getElementById(`widget-${id}`);
-						if (widgetElement) {
-							morphdom(widgetElement, content);
+						if (widget.element) {
+							widget.components.forEach(c => c.unload());
+
+							morphdom(widget.element, content);
 							// widgetElement.innerHTML = content;
 							// widgetElement.classList.add("widget-content-loaded");
 							debugLog(`Fetched widget content for ${id}`);
 
+							widget.components.forEach(c => c.load());
+
 							if(onChange) {
-								onChange(id, widgetElement);
+								await onChange(id, widget.element);
 							}
 						} else {
 							console.error(`Widget element not found for ${id}`);
