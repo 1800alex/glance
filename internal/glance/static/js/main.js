@@ -1,5 +1,4 @@
 import { widgetRefresh } from './widgets.js';
-import { setupPopovers } from './popover.js';
 import { setupMasonries } from './masonry.js';
 import { throttledDebounce, isElementVisible, openURLInNewTab } from './utils.js';
 
@@ -564,7 +563,6 @@ let widgets;
 
 async function setupItems(pageElement, element = document) {
     try {
-        setupPopovers(element);
         setupClocks(element)
         await setupCalendars(element);
         setupCarousels(element);

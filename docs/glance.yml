@@ -14,6 +14,11 @@ pages:
           - type: search
             autofocus: true
 
+          - type: iframe
+            source: "http://192.168.1.2:3000/d-solo/edygy173t1m9sc/server-stats?orgId=1&theme=dark&panelId=1&refresh=5s"
+            height: 200
+            title: Server Stats
+
           - type: monitor
             cache: 1m
             refresh: 30s
@@ -65,6 +70,12 @@ pages:
                   - title: Instagram
                     url: https://www.instagram.com/
 
+          - type: iframe
+            source: "http://192.168.1.2:5000/alex/notes/blob/master/home-network/README.md"
+            height: 600
+            title: Home Network
+            refresh: 5s
+
   - name: Home
     # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
     # hide-desktop-navigation: true
@@ -91,7 +102,7 @@ pages:
                 title: Ahmad Shadeed
 
           - type: server-stats
-            refresh: 5s
+            refresh: 1s
 
       - size: full
         widgets:
