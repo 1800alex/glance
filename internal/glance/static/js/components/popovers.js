@@ -1,14 +1,14 @@
-export function componentPopovers(element) {
+const defaultShowDelayMs = 200;
+const defaultHideDelayMs = 500;
+const defaultMaxWidth = "300px";
+const defaultDistanceFromTarget = "0px"
+const htmlContentSelector = "[data-popover-html]";
+
+export function componentPopoversOLD(element) {
 	return {
 		element: element,
 		unload: () => {},
 		load: function () {
-			const defaultShowDelayMs = 200;
-			const defaultHideDelayMs = 500;
-			const defaultMaxWidth = "300px";
-			const defaultDistanceFromTarget = "0px"
-			const htmlContentSelector = "[data-popover-html]";
-
 			let activeTarget = null;
 			let pendingTarget = null;
 			let cleanupOnHidePopover = null;
@@ -211,6 +211,167 @@ export function componentPopovers(element) {
 			frameElement.append(contentElement);
 			containerElement.append(frameElement);
 			document.body.append(containerElement);
+		},
+	}
+}
+
+
+export function componentPopovers(element) {
+	return {
+		element: element,
+		initialized: false,
+		active: null,
+		activeTarget: null,
+		togglePopoverTimeout: null,
+		showPopover: function() {
+			console.log("Showing popover", this.active);
+			if (this.active === null) {
+				console.log("Popover is null, not showing");
+				// this.containerElement.display = "none";
+				this.containerElement.classList.remove("popover-active");
+				return;
+			}
+
+			if (this.active.type === "text") {
+				this.containerElement.textContent = this.active.text;
+				// this.containerElement.display = "block";
+				this.containerElement.classList.add("popover-active");
+				console.log(`Showing popover with text: ${this.active.text}`);
+			} else if (this.active.type === "html") {
+				this.containerElement.replaceChildren(this.active.html);
+				// this.containerElement.display = "block";
+				this.containerElement.classList.add("popover-active");
+				console.log(`Showing popover with HTML content: ${this.active.html}`);
+			} else {
+				// this.containerElement.display = "none";
+				this.containerElement.classList.remove("popover-active");
+			}
+		},
+		hidePopover: function() {
+			console.log("Hiding popover");
+			if (this.active === null) return;
+
+			if (this.containerElement) {
+				// this.containerElement.style.display = "none";
+				this.containerElement.classList.remove("popover-active");
+			}
+			this.active = null;
+		},
+		getActive: function(event, target) {
+			console.log(`Getting active popover for target: ${target}`);
+			if(!target || !target.dataset) return null;
+
+			const popoverType = target.dataset.popoverType;
+			console.log(`Popover type: ${popoverType}`);
+
+			if (popoverType === "text") {
+				const text = target.dataset.popoverText;
+				if (text === undefined || text === "") return null;
+				return {
+					type: "text",
+					text: text,
+					x: event.clientX,
+					y: event.clientY,
+				};
+			} else if (popoverType === "html") {
+				const htmlContent = target.querySelector(htmlContentSelector);
+				if (htmlContent === null) return null;
+				/**
+				 * The reason for all of the below shenanigans is that I want to preserve
+				 * all attached event listeners of the original HTML content. This is so I don't have to
+				 * re-setup events for things like lazy images, they'd just work as expected.
+				 */
+				const placeholder = document.createComment("");
+				htmlContent.replaceWith(placeholder);
+
+				return {
+					type: "html",
+					html: htmlContent,
+					x: event.clientX,
+					y: event.clientY,
+				};
+			}
+		
+			return null;
+		},
+		clearTogglePopoverTimeout: function() {
+			clearTimeout(this.togglePopoverTimeout);
+		},
+		handleMouseEnter: function(event) {
+			this.clearTogglePopoverTimeout();
+			const target = event.target;
+			this.activeTarget = target;
+
+			const showDelay = target.dataset.popoverShowDelay || defaultShowDelayMs;
+			const active = this.getActive(event, target);
+
+			if (this.active !== null) {
+				if (active === null) {
+					// hide
+				} else if (this.active.type === active.type && this.active.text === active.text) {
+					// do nothing
+				} else {
+					// hide
+					// show
+				}
+
+				if (this.activeTarget !== target) {
+					// hidePopover();
+					// requestAnimationFrame(() => requestAnimationFrame(showPopover));
+				}
+
+				// return;
+			}
+
+			this.active = active;
+
+			console.log(`Setting active popover: ${this.active} in ${showDelay}ms`);
+			this.togglePopoverTimeout = setTimeout(() => this.showPopover(), showDelay);
+		},
+		handleMouseLeave: function(event) {
+			this.clearTogglePopoverTimeout();
+			const target = this.activeTarget || event.target;
+			this.togglePopoverTimeout = setTimeout(() => this.hidePopover(), target.dataset.popoverHideDelay || defaultHideDelayMs);
+		},
+		unload: () => {},
+		load: function () {
+			if (!this.initialized) {
+				this.initialized = true;
+
+				// Create a new popover container element and add it to our parent
+				this.containerElement = document.createElement("div");
+
+				// Get the id of our element
+				const elementId = this.element.id;
+
+				// Give it a unique ID
+				this.containerElement.id = "popover-container-" + elementId;
+				console.log(`Creating popover container with id ${this.containerElement.id}`);
+
+				// Make our popover container position absolute
+				// this.containerElement.style.position = "absolute";
+				// this.containerElement.style.display = "none";
+
+				this.containerElement.classList.add("popover-container");
+				this.element.parentElement.append(this.containerElement);
+			}
+
+			const handleMouseEnter = (event) => this.handleMouseEnter(event);
+			const handleMouseLeave = (event) => this.handleMouseLeave(event);
+
+			this.targets = element.querySelectorAll("[data-popover-type]");
+			this.targets.forEach(target => {
+				target.addEventListener("mouseenter", handleMouseEnter);
+				target.addEventListener("mouseleave", handleMouseLeave);
+			});
+
+			this.unload = () => {
+				this.targets.forEach(target => {
+					target.removeEventListener("mouseenter", handleMouseEnter);
+					target.removeEventListener("mouseleave", handleMouseLeave);
+				});
+				this.clearTogglePopoverTimeout();
+			}
 		},
 	}
 }

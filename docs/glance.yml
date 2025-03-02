@@ -4,6 +4,66 @@ theme:
   negative-color: 209 88 54
 
 pages:
+  - name: Testpage
+    # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
+    # hide-desktop-navigation: true
+    columns:
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: rss
+            limit: 10
+            collapse-after: 3
+            cache: 30m
+            refresh: 15m
+            feeds:
+              - url: https://selfh.st/rss/
+                title: selfh.st
+                limit: 4
+              - url: https://ciechanow.ski/atom.xml
+              - url: https://www.joshwcomeau.com/rss.xml
+                title: Josh Comeau
+              - url: https://samwho.dev/rss.xml
+              - url: https://ishadeed.com/feed.xml
+                title: Ahmad Shadeed
+
+          - type: server-stats
+            refresh: 1s
+
+      - size: full
+        widgets:
+          - type: group
+            widgets:
+              - type: hacker-news
+                cache: 30m
+                refresh: 15m
+              - type: lobsters
+                cache: 30m
+                refresh: 15m
+
+          - type: iframe
+            source: "http://192.168.1.2:3000/d-solo/edygy173t1m9sc/server-stats?orgId=1&theme=dark&panelId=1&refresh=5s"
+            height: 200
+            title: Server Stats
+
+          - type: iframe
+            source: "http://192.168.1.2:5000/alex/notes/blob/master/home-network/README.md"
+            height: 600
+            title: Home Network
+            refresh: 15s
+
+      - size: small
+        widgets:
+          - type: weather
+            refresh: 1h
+            location: Indianapolis, Indiana, United States
+            units: imperial # alternatively "imperial"
+            hour-format: 12h # alternatively "24h"
+            # Optionally hide the location from being displayed in the widget
+            # hide-location: true
+
   - name: Startpage
     width: slim
     hide-desktop-navigation: false
@@ -74,7 +134,6 @@ pages:
             source: "http://192.168.1.2:5000/alex/notes/blob/master/home-network/README.md"
             height: 600
             title: Home Network
-            refresh: 5s
 
   - name: Home
     # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
@@ -102,7 +161,7 @@ pages:
                 title: Ahmad Shadeed
 
           - type: server-stats
-            refresh: 1s
+            refresh: 60s
 
       - size: full
         widgets:
