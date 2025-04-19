@@ -284,7 +284,9 @@ function setupGroups() {
 
                 for (let i = 0; i < titles.length; i++) {
                     titles[i].classList.remove("widget-group-title-current");
+                    titles[i].setAttribute("aria-selected", "false");
                     tabs[i].classList.remove("widget-group-content-current");
+                    tabs[i].setAttribute("aria-hidden", "true");
                 }
 
                 if (current < t) {
@@ -296,7 +298,9 @@ function setupGroups() {
                 current = t;
 
                 title.classList.add("widget-group-title-current");
+                title.setAttribute("aria-selected", "true");
                 tabs[t].classList.add("widget-group-content-current");
+                tabs[t].setAttribute("aria-hidden", "false");
             });
         }
     }
@@ -645,7 +649,7 @@ function setupTruncatedElementTitles() {
 
     for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
-        if (element.title === "") element.title = element.textContent;
+        if (element.getAttribute("title") === null) element.title = element.textContent;
     }
 }
 
@@ -670,6 +674,7 @@ async function setupPage() {
         setupLazyImages();
     } finally {
         pageElement.classList.add("content-ready");
+        pageElement.setAttribute("aria-busy", "false");
 
         for (let i = 0; i < contentReadyCallbacks.length; i++) {
             contentReadyCallbacks[i]();
