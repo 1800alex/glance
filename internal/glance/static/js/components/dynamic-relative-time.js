@@ -51,11 +51,8 @@ export function componentDynamicRelativeTime(element) {
 		element: element,
 		elements: [],
 		load: function() {
-			this.elements = this.element.querySelectorAll("[data-dynamic-relative-time]");
 			const updateInterval = 60 * 1000;
 			let lastUpdateTime = Date.now();
-		
-			updateRelativeTimeForElements(this.elements);
 		
 			const updateElementsAndTimestamp = () => {
 				updateRelativeTimeForElements(this.elements);
@@ -108,6 +105,9 @@ export function componentDynamicRelativeTime(element) {
 			};
 
 			this.resume = () => {
+				this.elements = this.element.querySelectorAll("[data-dynamic-relative-time]");
+				updateRelativeTimeForElements(this.elements);
+				scheduleRepeatingUpdate();
 				document.addEventListener("visibilitychange", visibilitychange);
 			}
 		
@@ -116,8 +116,7 @@ export function componentDynamicRelativeTime(element) {
 				cleanupTimeouts();
 			};
 
-			scheduleRepeatingUpdate();
-			document.addEventListener("visibilitychange", visibilitychange);
+			this.resume();
 		},
 	}
 }

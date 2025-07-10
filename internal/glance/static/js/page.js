@@ -667,7 +667,6 @@ async function setupItems(pageElement, element = document) {
         setupCollapsibleGrids(element);
         setupGroups(element);
         setupMasonries(element);
-        setupDynamicRelativeTime(element);
         setupLazyImages(element);
     } finally {
         // TODO need to investigate if this is needed, or I have created memory leaks
