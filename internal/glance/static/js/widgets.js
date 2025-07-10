@@ -2,7 +2,7 @@ import morphdom from './morphdom-esm.js';
 import { componentDynamicRelativeTime } from './components/dynamic-relative-time.js';
 import { componentPopovers } from './components/popovers.js';
 
-const debug = false;
+const debug = true;
 let debugLog;
 if (debug) {
 	debugLog = function(...args) {
@@ -165,14 +165,14 @@ export function widgetRefresh(pageData, onChange) {
 
 						if(content) {
 							if (widget.element) {
-								widget.components.forEach(c => c.unload());
+								widget.components.forEach(c => c.pause());
 
 								morphdom(widget.element, content);
 								// widgetElement.innerHTML = content;
 								// widgetElement.classList.add("widget-content-loaded");
 								debugLog(`Fetched widget content for ${id}`);
 
-								widget.components.forEach(c => c.load());
+								widget.components.forEach(c => c.resume());
 
 								if(onChange) {
 									await onChange(id, widget.element);
