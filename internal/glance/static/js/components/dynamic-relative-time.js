@@ -1,4 +1,3 @@
-
 const minuteInSeconds = 60;
 const hourInSeconds = minuteInSeconds * 60;
 const dayInSeconds = hourInSeconds * 24;
@@ -51,7 +50,6 @@ export function componentDynamicRelativeTime(element) {
 	return {
 		element: element,
 		elements: [],
-		unload: () => {}, // no-op function to be replaced later
 		load: function() {
 			this.elements = this.element.querySelectorAll("[data-dynamic-relative-time]");
 			const updateInterval = 60 * 1000;
@@ -103,6 +101,15 @@ export function componentDynamicRelativeTime(element) {
 					timeout = scheduleRepeatingUpdate();
 				}, updateInterval - delta);
 			};
+
+			this.pause = () => {
+				cleanupTimeouts();
+				document.removeEventListener("visibilitychange", visibilitychange);
+			};
+
+			this.resume = () => {
+				document.addEventListener("visibilitychange", visibilitychange);
+			}
 		
 			this.unload = () => {
 				document.removeEventListener("visibilitychange", visibilitychange);

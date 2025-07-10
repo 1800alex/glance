@@ -552,8 +552,8 @@ async function setupCalendars(element = document) {
         calendar.default(elems[i]);
 }
 
-async function setupTodos() {
-    const elems = Array.from(document.getElementsByClassName("todo"));
+async function setupTodos(element = document) {
+    const elems = Array.from(element.getElementsByClassName("todo"));
     if (elems.length == 0) return;
 
     const todo = await import ('./todo.js');
@@ -654,10 +654,10 @@ function initThemePicker() {
 }
 
 let widgets;
+const refreshEnabled = true;
 
 async function setupItems(pageElement, element = document) {
     try {
-        setupPopovers(element);
         setupClocks(element);
         await setupCalendars(element);
         await setupTodos(element);
@@ -693,11 +693,12 @@ async function setupPage() {
     try {
         await setupItems(pageElement);
 
-        // TODO - I think we will need a unload() -> load() change event that triggers an actual cleanup of the widgets
-        widgets = widgetRefresh(pageData, async (id, element) => {
-            // await setupItems(pageElement, element);
-        });
-        widgets.init();
+        if (refreshEnabled) {
+            widgets = widgetRefresh(pageData, async (id, element) => {
+                await setupItems(pageElement, element);
+            });
+            widgets.init();
+        }
     } finally {
         pageElement.classList.add("content-ready");
         pageElement.setAttribute("aria-busy", "false");

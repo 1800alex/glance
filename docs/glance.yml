@@ -3,6 +3,9 @@ theme:
   primary-color: 24 97 58
   negative-color: 209 88 54
 
+server:
+  port: 8080
+
 pages:
   - name: Testpage
     # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
@@ -31,6 +34,8 @@ pages:
 
           - type: server-stats
             refresh: 1s
+
+          - type: server-stats
 
       - size: full
         widgets:
